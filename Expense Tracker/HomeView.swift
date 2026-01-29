@@ -14,6 +14,7 @@ struct HomeView:View {
     var body: some View {
         NavigationStack {
             TotalCardView(total: expenseViewModel.formattedTotal)
+            ExpenseListView(expense: expenseViewModel.expenses)
             AddExpenseViewButton {
                 addExpenseScreen = true
             }

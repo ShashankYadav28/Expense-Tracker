@@ -66,7 +66,17 @@ class ExpenseViewModel :ObservableObject {
         }
     }
     
-    func deleteExpense() {
+    func deleteExpense(at id:UUID) {
+//        expenses.removeAll { expense in
+//            expense.id == id
+//            
+//        }
+        guard let index = expenses.firstIndex(where: { expense in
+            expense.id == id;
+        }) else {
+            return ;
+        }
+        saveExpenses()
         
     }
     
