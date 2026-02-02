@@ -9,17 +9,23 @@ import SwiftUI
 
 struct ExpenseListView: View {
     let expense:[Expense]
-//    let onDdelete  = (UUID)->Void
+    let onDelete : (UUID) -> Void
     var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 8){
+        List{
                 ForEach(expense) { expense in
-                    ExpenseRowView(expense: expense)
+                    ExpenseRowView(expense: expense, ondelete: onDelete)
                 }
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
             
-            }
+       
            
         }
+        .listRowSpacing(4)
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .background(Color(.systemGroupedBackground))
         
     }
 }
@@ -46,5 +52,8 @@ struct ExpenseListView: View {
                          
                          
     
-    ])
+                        ], onDelete: { id in
+        print("deleted id is ",id)
+        
+    })
 }

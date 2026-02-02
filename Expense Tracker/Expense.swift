@@ -19,11 +19,13 @@ struct Expense:Identifiable,Codable {
         var id:String  {
             rawValue
         }
+        case all
         case shopping
         case food
         case bills
         case entertainment
         case transport
+        
     }
     
     

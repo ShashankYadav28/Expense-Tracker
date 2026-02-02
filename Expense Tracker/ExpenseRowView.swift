@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ExpenseRowView: View {
     let expense:Expense
+    let ondelete:(UUID) -> Void
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 6) {
@@ -26,16 +27,27 @@ struct ExpenseRowView: View {
                 .font(.headline)
                 .fontWeight(.medium)
         }
+        
         .padding()
         .frame(maxWidth: .infinity)
         .background(
             Color(.secondarySystemBackground)
         )
         .clipShape(RoundedRectangle(cornerSize: CGSize(width: 15, height: 15)))
-        .padding(.horizontal)
+        .swipeActions {
+            Button(role: .destructive) {
+                ondelete( expense.id )
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        }
+        
     }
 }
 
 #Preview {
-    ExpenseRowView(expense:Expense(amount: 10000, date: Date(), title: "Party", category: .food) )
+    ExpenseRowView(expense:Expense(amount: 10000, date: Date(), title: "Party", category: .food), ondelete: { id in
+        print("deleted expense id is ",id)
+        
+    } )
 }

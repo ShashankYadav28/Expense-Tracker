@@ -24,7 +24,7 @@ struct TotalCardView: View {
             RoundedRectangle(cornerSize: CGSize(width: 16, height: 16))
                 .fill(Color(.secondarySystemBackground))
         )
-        .padding(.horizontal,20)
+        
     }
 }
 

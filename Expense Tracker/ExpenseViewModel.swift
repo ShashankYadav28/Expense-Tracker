@@ -11,6 +11,10 @@ import Combine
 class ExpenseViewModel :ObservableObject {
     
     @Published var expenses:[Expense] = []
+    @Published var selection:sortOption = .newest
+    @Published var selectdCategory:Expense.Category = .all
+    @Published var searchTextField = ""
+    
     private let keyVariable = "saved_expenses"
     
     init() {
@@ -23,6 +27,117 @@ class ExpenseViewModel :ObservableObject {
         }
     }
     
+    // for this i am making the one computed property will return taht
+    
+    var displayExpense:[Expense] {
+        var result = expenses
+        
+        
+        if (selectdCategory != .all) {
+          
+                result = result.filter {
+                    $0.category == selectdCategory
+                }
+            
+        }
+        
+        if !searchTextField.isEmpty {
+            result  = result.filter({
+                $0.title.lowercased().contains(searchTextField.lowercased())
+            })
+        }
+        
+        switch selection {
+        case .newest:
+            result  = result.sorted(by: { previousResult, currentResult in
+                previousResult.date>currentResult.date
+            })
+        case .oldest:
+            result  = result.sorted(by: { previousResult, currentResult in
+                previousResult.date<currentResult.date
+            })
+
+        case .highestAmount:
+            result  = result.sorted(by: { previousResult, currentResult in
+                previousResult.amount>currentResult.amount
+            })
+        case .lowestAmount:
+            result  = result.sorted(by: { previousResult, currentResult in
+                previousResult.amount<currentResult.amount
+            })
+        }
+        
+        return result 
+        
+    }
+    
+    
+//    var filteredExpenses:[Expense] {
+//        if selectdCategory == .all {
+//            return expenses
+//        }
+//        else {
+//            return expenses.filter {
+//                $0.category == selectdCategory
+//            }
+//        }
+//    }
+//    
+//    var searchExpenses:[Expense] {
+//        if searchTextField.isEmpty {
+//            return filteredExpenses
+//        }
+//        else {
+//            
+//           return  filteredExpenses.filter {
+//                $0.title.lowercased().contains(
+//                    searchTextField.lowercased()
+//                )
+//            }
+//        
+//        }
+//        
+//    }
+//    
+//    var sortedExpenses:[Expense] {
+//        switch selection {
+//        case .newest:
+//            return searchExpenses.sorted { previousExpense, currentExpense in
+//                previousExpense.date>currentExpense.date
+//            }
+//        case .oldest:
+//            return searchExpenses.sorted {
+//                $0.date<$1.date
+//            }
+//        case .highestAmount:
+//            return searchExpenses.sorted {
+//                $0.amount>$1.amount
+//            }
+//        case .lowestAmount:
+//            return searchExpenses.sorted {
+//                $0.amount<$1.amount
+//            }
+//        }
+//        
+//    }
+    
+    var groupedExpenses:[(date:Date,expenses:[Expense])] {
+        let current = Calendar.current  // itt gives acces to calender utilities and properties
+        let grouped = Dictionary(grouping: displayExpense) { element in
+            current.startOfDay(for: element.date) // caledar property startday is used so that i can remove the time if it not done then even on the same day with different time will be consider as a different key and expenses
+        }
+        return grouped
+            .map {
+            (date:$0.key,expenses:$0.value)
+                
+        
+        }
+            .sorted { first, second in
+                first.date>second.date
+                
+            }
+        
+    }
     var formattedTotal:String  {
         
         // create a numberformatter
@@ -39,6 +154,7 @@ class ExpenseViewModel :ObservableObject {
     func addExpense(amount:Double , title:String , date:Date , category:Expense.Category) {
         let newExpense = Expense(amount: amount, date: date, title: title, category: category)
         expenses.append(newExpense)
+        saveExpenses()
     }
     
     
@@ -76,8 +192,20 @@ class ExpenseViewModel :ObservableObject {
         }) else {
             return ;
         }
+        expenses.remove(at: index)
         saveExpenses()
         
     }
-    
+}
+
+extension ExpenseViewModel {
+    enum sortOption :String ,Identifiable,CaseIterable {
+        var id:String  {
+            rawValue
+        }
+        case newest
+        case oldest
+        case highestAmount
+        case lowestAmount
+    }
 }
