@@ -24,10 +24,7 @@ struct AddExpenseViewButton:View {
             .clipShape(RoundedRectangle(cornerSize: CGSize(width: 20, height: 20)))
             .padding()
             .foregroundStyle(.white)
-            
         }
-    
-
     }
 }
 #Preview {

@@ -151,12 +151,17 @@ class ExpenseViewModel :ObservableObject {
         return formatter.string(from: NSNumber(value: totalCalculation)) ?? "0.00"
     }
     
+    func formattedDate(date:Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd MM YYYY";
+        return formatter.string(from: date)
+    }
+    
     func addExpense(amount:Double , title:String , date:Date , category:Expense.Category) {
         let newExpense = Expense(amount: amount, date: date, title: title, category: category)
         expenses.append(newExpense)
         saveExpenses()
     }
-    
     
     func saveExpenses() {
         do {
