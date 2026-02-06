@@ -10,7 +10,8 @@ import SwiftUI
 struct HomeView:View {
     @StateObject var expenseViewModel = ExpenseViewModel()
 //    @State private var showAddExpense = false
-    @State var addExpenseScreen = false
+    @State private  var addExpenseScreen = false
+    @State private var displayMode:DisplayMode = .flatList
     var body: some View {
         NavigationStack {
             List{
@@ -18,6 +19,15 @@ struct HomeView:View {
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
+                
+                Picker("DisplayMode", selection: $displayMode) {
+                    ForEach(DisplayMode.allCases) { displayMode in
+                        Text(displayMode.rawValue)
+                            .tag(displayMode)
+                        
+                    }
+                    
+                }.pickerStyle(.segmented)
                     
                         if expenseViewModel.expenses.isEmpty {
                             VStack(spacing: 16){
@@ -32,12 +42,22 @@ struct HomeView:View {
                             }
                         }
                         else {
-                            GroupedListContentView(groupedExpenses: expenseViewModel.groupedExpenses) { id  in
-                                expenseViewModel.deleteExpense(at: id)
-                            } formattedDate: { date in
-                                expenseViewModel.formattedDate(date: date)
-                            }
+                            switch displayMode {
+                            case .flatList:
+                                FlatListView(flatListExpense: expenseViewModel.displayExpense, onDelete: { id in
+                                    expenseViewModel.deleteExpense(at: id)
+                                    
+                                })
+                                
+                            case .groupedList:
+                                GroupedListContentView(groupedExpenses: expenseViewModel.groupedExpenses) { id  in
+                                    expenseViewModel.deleteExpense(at: id)
+                                } formattedDate: { date in
+                                    expenseViewModel.formattedDate(date: date)
+                                }
 
+                            }
+                           
                         }
                 }
             .safeAreaInset(edge: .bottom, content: {
@@ -103,6 +123,13 @@ struct HomeView:View {
             
         }
     }
+    enum DisplayMode:String ,Identifiable,CaseIterable {
+        var id:String {
+            rawValue
+        }
+        case flatList
+        case groupedList
+    }
        
 }
 
@@ -133,6 +160,24 @@ struct GroupedListContentView: View {
         
     }
 }
+
+struct FlatListView:View {
+    let flatListExpense:[Expense]
+    var onDelete:(UUID) -> Void
+    var body: some View {
+        ForEach(flatListExpense)  { expense in
+            ExpenseRowView(expense: expense) { id in
+                onDelete(id)
+            }
+//            .listRowSpacing(2)
+//            .listRowSeparator(.hidden)
+//            .listRowBackground(Color.clear)
+//            .list
+        }
+    }
+}
+
+
 
 #Preview {
     HomeView()

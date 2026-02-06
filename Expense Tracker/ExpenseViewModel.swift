@@ -122,15 +122,33 @@ class ExpenseViewModel :ObservableObject {
 //    }
     
     var groupedExpenses:[(date:Date,expenses:[Expense])] {
+        
         let current = Calendar.current  // itt gives acces to calender utilities and properties
         let grouped = Dictionary(grouping: displayExpense) { element in
             current.startOfDay(for: element.date) // caledar property startday is used so that i can remove the time if it not done then even on the same day with different time will be consider as a different key and expenses
         }
         return grouped
-            .map {
-            (date:$0.key,expenses:$0.value)
-                
-        
+            .map { group in
+                var sortedEXpenses:[Expense]  // here we are creating a variable so that it can store the sorted result
+                switch selection {
+                case .newest:
+                    sortedEXpenses = group.value.sorted(by: {
+                        $0.date>$1.date
+                    })
+                case .oldest:
+                    sortedEXpenses = group.value.sorted(by: {
+                        $0.date<$1.date
+                    })
+                case .highestAmount:
+                    sortedEXpenses = group.value.sorted(by: {
+                        $0.amount>$1.amount
+                    })
+                case .lowestAmount:
+                    sortedEXpenses = group.value.sorted(by: {
+                        $0.amount<$1.amount
+                    })
+                }
+                return (date:group.key,expenses:sortedEXpenses)
         }
             .sorted { first, second in
                 first.date>second.date
@@ -212,5 +230,13 @@ extension ExpenseViewModel {
         case oldest
         case highestAmount
         case lowestAmount
+    }
+    
+    enum DisplayMode:String ,Identifiable,CaseIterable {
+        var id:String {
+            rawValue
+        }
+        case flatList
+        case groupedList
     }
 }
